@@ -1,0 +1,17 @@
+[
+  {
+    "version": "0.1.0",
+    "name": "CraftingRecipeRedirector",
+    "modid": "craftingreciperedirector",
+    "description": "CraftingRecipeRedirector",
+    "authorList": [
+      "ustc-zzzz"
+    ],
+    "dependencies": [
+      "spongeapi@7.1.0"
+    ],
+    "requiredMods": [
+      "spongeapi@7.1.0"
+    ]
+  }
+]

@@ -1,0 +1,83 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'forge'
+            url = 'https://files.minecraftforge.net/maven'
+        }
+        dependencies {
+            classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        }
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'scala'
+
+defaultTasks 'clean', 'build'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/maven'
+    }
+}
+
+version = '0.1.0'
+archivesBaseName = 'CraftingRecipeRedirector'
+group = 'com.github.ustc_zzzz.craftingreciperedirector'
+
+minecraft {
+    runDir = 'run'
+    forgeVersion = '2768'
+    mappings = 'snapshot_20171003'
+}
+
+dependencies {
+    compile 'org.spongepowered:spongeapi:7.1.0'
+    compile 'org.spongepowered:spongeforge:1.12.2-2768-7.1.4:dev'
+}
+
+reobf {
+    jar {
+        mappingType = 'SEARGE'
+    }
+}
+
+sourceSets {
+    main {
+        resources.srcDir 'src/main/resources/'
+        scala.srcDir 'src/main/scala/'
+        java.srcDir 'src/api/java/'
+    }
+    api {
+        java.srcDir 'src/api/java/'
+    }
+}
+
+processResources {
+    from 'LICENSE'
+}
+
+task apiJar(type: Jar, dependsOn: sourceJar) {
+    baseName = 'CraftingRecipeRedirectorAPI'
+
+    from sourceSets.api.allSource
+    from sourceSets.api.output
+    from 'LICENSE'
+}
+
+jar {
+    manifest {
+        attributes 'FMLCorePlugin': project.group + '.CraftingRecipeRedirector'
+    }
+}
+
+artifacts {
+    archives sourceJar
+    archives apiJar
+}
