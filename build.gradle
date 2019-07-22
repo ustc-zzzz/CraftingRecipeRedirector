@@ -33,8 +33,8 @@ group = 'com.github.ustc_zzzz.craftingreciperedirector'
 
 minecraft {
     runDir = 'run'
-    forgeVersion = '2768'
     mappings = 'snapshot_20171003'
+    version = '1.12.2-14.23.5.2768'
 }
 
 dependencies {
