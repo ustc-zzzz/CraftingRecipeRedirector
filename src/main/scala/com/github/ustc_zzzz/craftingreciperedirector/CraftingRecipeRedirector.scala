@@ -69,12 +69,18 @@ object CraftingRecipeRedirector {
   }
 
   class Transformer extends IClassTransformer {
-    override def transform(name: String, transformedName: String, basicClass: Array[Byte]): Array[Byte] = {
+    override def transform(name: String, transformedName: String, basicClass: Array[Byte]): Array[Byte] = try {
       val classReader = new ClassReader(basicClass)
       val classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES)
 
       classReader.accept(new Visitor(classWriter, transformedName), ClassReader.EXPAND_FRAMES)
       classWriter.toByteArray
+    } catch {
+      case scala.util.control.NonFatal(e) =>
+        val message = "There may be something wrong with the bytecode. It's not CraftingRecipeRedirector's fault."
+        val hexDump = if (basicClass == null) "null" else basicClass.map("%02x".format(_)).mkString("0x", "", "")
+        logger.error(s"$message\nHex dump: $hexDump.", e)
+        basicClass
     }
   }
 
