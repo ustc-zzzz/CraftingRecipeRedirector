@@ -69,18 +69,23 @@ object CraftingRecipeRedirector {
   }
 
   class Transformer extends IClassTransformer {
-    override def transform(name: String, transformedName: String, basicClass: Array[Byte]): Array[Byte] = try {
-      val classReader = new ClassReader(basicClass)
-      val classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES)
+    override def transform(name: String, transformedName: String, basicClass: Array[Byte]): Array[Byte] = {
+      if (basicClass == null) basicClass else try {
+        val classReader = new ClassReader(basicClass)
+        val classWriter = new ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES)
 
-      classReader.accept(new Visitor(classWriter, transformedName), ClassReader.EXPAND_FRAMES)
-      classWriter.toByteArray
-    } catch {
-      case scala.util.control.NonFatal(e) =>
-        val message = "There may be something wrong with the bytecode. It's not CraftingRecipeRedirector's fault."
-        val hexDump = if (basicClass == null) "null" else basicClass.map("%02x".format(_)).mkString("0x", "", "")
-        logger.error(s"$message\nHex dump: $hexDump.", e)
-        basicClass
+        classReader.accept(new Visitor(classWriter, transformedName), ClassReader.EXPAND_FRAMES)
+        classWriter.toByteArray
+      } catch {
+        case scala.util.control.NonFatal(e) => log(name, transformedName, basicClass, e)
+      }
+    }
+
+    private def log(name: String, transformedName: String, bytes: Array[Byte], error: Throwable): Array[Byte] = {
+      val m1 = s"Name: $name, Transformed name: $transformedName, Hex dump: 0x${bytes.map("%02x".format(_)).mkString}."
+      val m2 = "There may be something wrong with the bytecode. It's not CraftingRecipeRedirector's fault."
+      logger.error(s"$m2\n$m1", error)
+      bytes
     }
   }
 
